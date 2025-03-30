@@ -7,6 +7,7 @@ export default function Register() {
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [Phone, setPhone] = useState("");
+  const [name, setName] = useState(""); 
 
 
   const handleSubmit = (e) => {
@@ -23,6 +24,13 @@ export default function Register() {
         <p className="text-gray-600">Create an account to join the Zapsync community</p>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+        <input
+            type="Text"
+            placeholder="Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
           <input
             type="email"
             placeholder="Email"
@@ -44,7 +52,7 @@ export default function Register() {
             onChange={(e) => setPhone(e.target.value)}
             pattern="[0-9]{10}"
             className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+            />
           <div className="flex items-center justify-between text-sm">
             <label className="flex items-center space-x-2">
               <input
