@@ -9,3 +9,4 @@ django
 djangorestframework
 sentence-transformers
 imblearn
+faker

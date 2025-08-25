@@ -16,6 +16,7 @@ import Support from "./pages/Support";
 import Notifications from "./pages/Notifications";
 import Statistics from "./pages/Statistics";
 import Groups from "./pages/Groups";
+import Folderpage from "./pages/Folderpage";
 
 // Helper function to calculate hover color
 const getHoverColor = (hex) => {
@@ -72,6 +73,7 @@ function App() {
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/statistics" element={<Statistics />} />
             <Route path="/groups" element={<Groups />} />
+            <Route path="/folder" element={<Folderpage />} />
           </Route>
         </Route>
         
