@@ -1,7 +1,7 @@
 import axios from "axios";
 
-// const BASE_URL = "http://localhost:5000/api"; 
-const BASE_URL = "https://zapsync.onrender.com/api";
+const BASE_URL = "http://localhost:5000/api"; 
+// const BASE_URL = "https://zapsync.onrender.com/api";
 
 // Create axios instance
 const api = axios.create({
@@ -111,6 +111,7 @@ export const uploadFile = async (file, description) => {
 export const getFiles = async () => {
   try {
     const response = await api.get("/files/all");
+    console.log("Files Response:", response.data);
     return response.data;
   } catch (error) {
     throw error;
@@ -234,13 +235,21 @@ export const smartSearch = async (query) => {
         'Content-Type': 'application/json'
       }
     });
-    return response.data;
+    
+    // Transform the response for easier frontend handling
+    return {
+      ...response.data,
+      files: response.data.results?.files || [],
+      folders: response.data.results?.folders || [],
+      message: response.data.query 
+        ? `Found ${response.data.counts?.files || 0} files and ${response.data.counts?.folders || 0} folders for "${response.data.query}"`
+        : 'Search completed'
+    };
   } catch (error) {
     console.error("Smart Search Error:", error);
     throw error;
   }
 };
-
 
 
 export const activateStar = async (id, type, isStarred) => {

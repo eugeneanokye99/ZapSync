@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from "react";
-import { Upload, Search, List, Grid, Menu, Folder, Plus, Send, MessageSquare, Sparkles } from "lucide-react";
+import { Upload, Search, List, Grid, Menu, Folder, Plus, Send, MessageSquare, Sparkles, FileText, Sliders, FileTextIcon, Image } from "lucide-react";
 import FolderCard from "../components/FolderCard";
 import RecentFiles from "../components/RecentFiles";
 import FileActivityCalendar from "../components/FileActivityCalendar";
@@ -316,19 +316,53 @@ const Dashboard = () => {
       // Call smart search API
       const results = await smartSearch(currentMessage);
       
-      // Format results for display
-      const resultsMessage = {
-        id: chatMessages.length + 3,
-        text: results.message || `Found ${results.files.length} matching files:`,
-        sender: 'bot',
-        files: results.files,
-        isSearchResult: true
-      };
+      // Create result components
+      const resultComponents = [];
+      
+      // Add folders if found
+      if (results.folders.length > 0) {
+        resultComponents.push({
+          type: 'heading',
+          text: `📁 Folders (${results.folders.length})`
+        });
+        
+        resultComponents.push({
+          type: 'folders',
+          items: results.folders.slice(0, 3) // Show max 3 folders
+        });
+      }
+      
+      // Add files if found
+      if (results.files.length > 0) {
+        resultComponents.push({
+          type: 'heading',
+          text: `📄 Files (${results.files.length})`
+        });
+        
+        resultComponents.push({
+          type: 'files',
+          items: results.files.slice(0, 5) // Show max 5 files
+        });
+      }
+      
+      // No results case
+      if (resultComponents.length === 0) {
+        resultComponents.push({
+          type: 'text',
+          text: "No matching files or folders found."
+        });
+      }
       
       // Update chat - replace loading message with results
       setChatMessages(prev => [
         ...prev.slice(0, -1), // Remove loading message
-        resultsMessage
+        {
+          id: prev.length + 3,
+          text: results.message,
+          sender: 'bot',
+          components: resultComponents,
+          isSearchResult: true
+        }
       ]);
       
     } catch (error) {
@@ -342,6 +376,20 @@ const Dashboard = () => {
         }
       ]);
     }
+  };
+
+  const FileIcon = ({ type }) => {
+    const iconMap = {
+      pdf: <FileTextIcon size={14} />,
+      docx: <FileTextIcon size={14} />,
+      pptx: <Sliders size={14} />,
+      png: <Image size={14} />,
+      jpg: <Image size={14} />,
+      jpeg: <Image size={14} />,
+      default: <File size={14} />
+    };
+    
+    return iconMap[type] || iconMap.default;
   };
 
   return (
@@ -401,26 +449,57 @@ const Dashboard = () => {
           >
             {/* Chat messages */}
             <div className="max-h-60 overflow-y-auto p-4 space-y-3">
-              {chatMessages.map((msg, index) => (
+            {chatMessages.map((msg, index) => (
+              <motion.div
+                key={msg.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+              >
                 <motion.div
-                  key={msg.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                  whileHover={{ scale: 1.02 }}
+                  className={`max-w-xs md:max-w-md rounded-lg px-4 py-2 ${
+                    msg.sender === 'user' 
+                      ? 'bg-[var(--color-primary)] text-white' 
+                      : 'bg-gray-100 text-gray-800'
+                  }`}
                 >
-                  <motion.div
-                    whileHover={{ scale: 1.02 }}
-                    className={`max-w-xs md:max-w-md rounded-lg px-4 py-2 ${
-                      msg.sender === 'user' 
-                        ? 'bg-[var(--color-primary)] text-white' 
-                        : 'bg-gray-100 text-gray-800'
-                    }`}
-                  >
-                    {msg.text}
-                  </motion.div>
+                  {msg.text}
+                  
+                  {/* Render search results if available */}
+                  {msg.isSearchResult && msg.components?.map((component, i) => (
+                    <div key={i} className="mt-2">
+                      {component.type === 'heading' && (
+                        <p className="font-semibold text-sm mb-1">{component.text}</p>
+                      )}
+                      
+                      {component.type === 'folders' && (
+                        <div className="space-y-1">
+                          {component.items.map(folder => (
+                            <div key={folder._id} className="flex items-center gap-2 p-1 hover:bg-gray-50 rounded">
+                              <Folder size={14} />
+                              <span className="text-sm truncate">{folder.name}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      
+                      {component.type === 'files' && (
+                        <div className="space-y-1">
+                          {component.items.map(file => (
+                            <div key={file._id} className="flex items-center gap-2 p-1 hover:bg-gray-50 rounded">
+                              <FileIcon type={file.type} />
+                              <span className="text-sm truncate">{file.name}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
                 </motion.div>
-              ))}
+              </motion.div>
+            ))}
             </div>
             
             {/* Chat input */}

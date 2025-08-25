@@ -11,31 +11,5 @@ const analyticsSchema = new mongoose.Schema({
   lastUpdated: { type: Date, default: Date.now }
 }, { timestamps: true });
 
-// Self-contained methods (no external model references)
-analyticsSchema.statics.incrementUpload = async function(fileSizeMB) {
-  await this.updateOne(
-    {},
-    { 
-      $inc: { 
-        totalFiles: 1,
-        uploadsToday: 1,
-        storageUsed: fileSizeMB 
-      },
-      $set: { lastUpdated: new Date() }
-    },
-    { upsert: true }
-  );
-};
-
-analyticsSchema.statics.incrementDownload = async function() {
-  await this.updateOne(
-    {},
-    { 
-      $inc: { downloadsToday: 1 },
-      $set: { lastUpdated: new Date() }
-    },
-    { upsert: true }
-  );
-};
 
 module.exports = mongoose.model('Analytics', analyticsSchema);

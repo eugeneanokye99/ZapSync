@@ -42,7 +42,7 @@ def determine_category(row):
         ('lecture', ['lecture', 'note', 'notes', 'class', 'lesson']),
         ('slide', ['slide', 'presentation', 'deck', 'ppt']),
         ('assignment', ['assignment', 'hw', 'homework', 'problem set', 'pset']),
-        ('exam', ['exam', 'test', 'quiz', 'midterm', 'final']),
+        ('exam', ['exam', 'test', 'quiz', 'midsem', 'final']),
         ('code', ['code', 'program', 'script', 'src', '.py', '.cpp', '.java']),
         ('document', ['doc', 'report', 'article', 'writeup']),
         ('image', ['image', 'photo', 'pic', 'screenshot', '.jpg', '.png'])

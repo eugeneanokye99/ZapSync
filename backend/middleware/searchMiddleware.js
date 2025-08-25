@@ -1,6 +1,6 @@
 const axios = require('axios');
-// const DJANGO_API_URL = 'http://127.0.0.1:8000/nlp/process/';
-const DJANGO_API_URL = 'https://zapsyncml.onrender.com/nlp/process/';
+const DJANGO_API_URL = 'http://127.0.0.1:8000/nlp/process/';
+// const DJANGO_API_URL = 'https://zapsyncml.onrender.com/nlp/process/';
 
 
 const processQuery = async (req, res, next) => {
@@ -58,7 +58,7 @@ const processQuery = async (req, res, next) => {
       rawNlpResponse: nlpResponse.data // Keep for debugging
     };
 
-    // console.log('Processed NLP Data:', JSON.stringify(req.nlpData, null, 2));
+    console.log('Processed NLP Data:', JSON.stringify(req.nlpData, null, 2));
     next();
 
   } catch (error) {

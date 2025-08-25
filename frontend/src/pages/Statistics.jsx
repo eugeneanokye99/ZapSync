@@ -42,9 +42,9 @@ const iconComponents = {
 
 function Statistics() {
   const [analytics, setAnalytics] = useState({
-    totalUsers: 0,
-    activeUsers: 0,
-    totalFiles: 0,
+    totalUsers: 2,
+    activeUsers: 1,
+    totalFiles: 57,
     storageUsed: 0,
     uploadsToday: 0,
     downloadsToday: 0,
