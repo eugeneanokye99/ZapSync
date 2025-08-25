@@ -32,8 +32,8 @@ const malwarePatterns = [
   /base64_decode/
 ];
 
-// const DJANGO_API_URL = 'http://127.0.0.1:8000/filter/predict/';
-const DJANGO_API_URL = 'https://zapsyncml.onrender.com/filter/predict/';
+const DJANGO_API_URL = 'http://127.0.0.1:8000/filter/predict/';
+// const DJANGO_API_URL = 'https://zapsyncml.onrender.com/filter/predict/';
 
 // Profanity Check
 exports.checkForProfanity = async (text) => {
