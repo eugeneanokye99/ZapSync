@@ -17,7 +17,8 @@ const FolderListCard = ({
   onShareClick,
   onRenameClick,
   onDownloadClick,
-  onMoveToTrash 
+  onMoveToTrash,
+  onClick
 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isShareSubmenuOpen, setIsShareSubmenuOpen] = useState(false);
@@ -91,8 +92,8 @@ const FolderListCard = ({
   };
 
   return (
-    <div className="flex items-center justify-between p-4 bg-white border-b border-gray-100 hover:bg-gray-50 transition-colors relative">
-      <div className="flex items-center gap-4 min-w-0">
+    <div className="flex items-center justify-between p-4 bg-white border-b border-gray-100 hover:bg-gray-50 transition-colors relative cursor-pointer">
+      <div className="flex items-center gap-4 min-w-0" onClick={onClick}>
         <div className="p-2 rounded-lg bg-[#E8F4F3] text-[var(--color-primary)]">
           <Folder size={20} />
         </div>

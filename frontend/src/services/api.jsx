@@ -111,7 +111,6 @@ export const uploadFile = async (file, description) => {
 export const getFiles = async () => {
   try {
     const response = await api.get("/files/all");
-    console.log("Files Response:", response.data);
     return response.data;
   } catch (error) {
     throw error;
@@ -344,5 +343,86 @@ export const getTrashExpiration = async () => {
   } catch (error) {
     console.error("Failed to get trash expiration:", error);
     throw error;
+  }
+};
+
+// Staff group management API calls
+export const getStaffGroups = async () => {
+  try {
+    const response = await api.get('/groups/staff');
+    return response.data;
+  } catch (error) {
+    throw error.response?.data?.error || error.message;
+  }
+};
+
+export const createGroup = async (groupData) => {
+  try {
+    const response = await api.post('/groups/', groupData);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data?.error || error.message;
+  }
+};
+
+export const updateGroup = async (groupId, groupData) => {
+  try {
+    const response = await api.put(`/groups/${groupId}`, groupData);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data?.error || error.message;
+  }
+};
+
+export const deleteGroup = async (groupId) => {
+  try {
+    const response = await api.delete(`/groups/${groupId}`);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data?.error || error.message;
+  }
+};
+
+// In your api.js service
+// In your api.js service file
+export const uploadGroupFile = async (groupId, formData) => {
+  console.log(formData.get('file'));
+  try {
+    const response = await api.post(`/groups/${groupId}/files`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data?.error || error.message;
+  }
+};
+export const deleteGroupFile = async (groupId, fileId) => {
+  try {
+    const response = await api.delete(`/groups/${groupId}/files/${fileId}`);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data?.error || error.message;
+  }
+};
+
+export const generateJoinToken = async (groupId) => {
+  try {
+    const response = await api.post(`/groups/${groupId}/token`);
+    return response.data.token;
+  } catch (error) {
+    throw error.response?.data?.error || error.message;
+  }
+};
+
+
+// Get groups where user is a member
+export const getUserGroups = async () => {
+  try {
+    const response = await api.get('/groups/user');
+    return response.data;
+  } catch (error) {
+    throw error.response?.data?.error || error.message;
   }
 };

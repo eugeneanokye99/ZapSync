@@ -3,12 +3,12 @@ const mongoose = require('mongoose');
 const groupSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: true
+    required: true,
+    trim: true
   },
-  description: String,
-  joinLink: {
+  description: {
     type: String,
-    unique: true
+    trim: true
   },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
@@ -20,13 +20,30 @@ const groupSchema = new mongoose.Schema({
     ref: 'User'
   }],
   files: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'File'
+    filename: String,
+    path: String,
+    size: Number,
+    mimetype: String,
+    uploadedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    title: String,
+    description: String,
+    uploadedAt: { type: Date, default: Date.now }
   }],
-  createdAt: {
-    type: Date,
-    default: Date.now
+  joinLink: {
+    type: String,
+    unique: true,
+    sparse: true
+  },
+  isPublic: {
+    type: Boolean,
+    default: true
+  },
+  allowSelfJoin: {
+    type: Boolean,
+    default: false
   }
-}, { timestamps: true });
+}, {
+  timestamps: true
+});
 
 module.exports = mongoose.model('Group', groupSchema);

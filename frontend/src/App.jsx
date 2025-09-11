@@ -17,6 +17,7 @@ import Notifications from "./pages/Notifications";
 import Statistics from "./pages/Statistics";
 import Groups from "./pages/Groups";
 import Folderpage from "./pages/Folderpage";
+import StaffDashboard from "./pages/StaffDashboard";
 
 // Helper function to calculate hover color
 const getHoverColor = (hex) => {
@@ -65,6 +66,7 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route element={<MainLayout />}>
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/staff_dashboard" element={<StaffDashboard />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/starred" element={<Starred />} />
@@ -73,7 +75,7 @@ function App() {
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/statistics" element={<Statistics />} />
             <Route path="/groups" element={<Groups />} />
-            <Route path="/folder" element={<Folderpage />} />
+            <Route path="/folder/:id" element={<Folderpage />} />
           </Route>
         </Route>
         

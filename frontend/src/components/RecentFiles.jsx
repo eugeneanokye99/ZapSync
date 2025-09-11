@@ -1,10 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
 import { 
   MoreVertical, Download, Edit2, Share2, Star as StarIcon, Trash2, Info,
-  Copy, UserPlus, Link2, File, Image, Video, FileText
+  Copy, UserPlus, Link2, File, Image, Video, FileText, Eye
 } from 'lucide-react';
 import styles from '../styles/FileCard.module.css'; // You'll need to create this CSS module
 import useStar from '../hooks/useStar';
+import FileDisplay from './FileDisplay';
 
 const FileCard = ({ 
   file,
@@ -18,6 +19,7 @@ const FileCard = ({
   const [isShareSubmenuOpen, setIsShareSubmenuOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isStarred, setIsStarred] = useState(file.isStarred);
+  const [isFileDisplayOpen, setIsFileDisplayOpen] = useState(false);
   const { toggleStar, checkStarred, isLoading } = useStar();
   const [isMovingToTrash, setIsMovingToTrash] = useState(false);
   const menuRef = useRef(null);
@@ -46,6 +48,11 @@ const FileCard = ({
     navigator.clipboard.writeText(`https://example.com/file/${encodeURIComponent(file.name)}`);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleFileDisplay = () => {
+    setIsFileDisplayOpen(true);
+    setIsMenuOpen(false);
   };
 
   
@@ -94,7 +101,11 @@ const FileCard = ({
   if (viewMode === 'list') {
     return (
       <div className={styles.fileListCard}>
-        <div className={styles.fileInfoContainer}>
+        <div 
+          className={styles.fileInfoContainer}
+          onClick={handleFileDisplay}
+          style={{ cursor: 'pointer' }}
+          >
           <div className={styles.fileIconContainer}>
             {file.type?.includes('image') ? (
               <img 
@@ -118,6 +129,13 @@ const FileCard = ({
         </div>
         
         <div className={styles.fileActions}>
+        <button 
+            className={styles.actionButton}
+            // onClick={handlePreview}
+            title="Preview"
+          >
+            <Eye size={18} />
+          </button>
         <button 
           onClick={handleStarClick}
           disabled={isLoading}
@@ -181,6 +199,12 @@ const FileCard = ({
                   label={isStarred ? 'Unstar' : 'Star'} 
                   onClick={onStarClick}
                 />
+
+        <MenuItem 
+          icon={<Eye size={16} />} 
+          label="Preview" 
+          // onClick={handlePreview}
+        />
                 
                 <div className={styles.menuDivider}></div>
                 
@@ -200,6 +224,9 @@ const FileCard = ({
             </div>
           )}
         </div>
+        {isFileDisplayOpen && (
+          <FileDisplay file={file} onClose={() => setIsFileDisplayOpen(false)} />
+        )}
       </div>
     );
   }
@@ -207,7 +234,11 @@ const FileCard = ({
   // Grid view
   return (
     <div className={styles.fileGridCard}>
-      <div className={styles.filePreviewContainer}>
+     <div 
+        className={styles.filePreviewContainer}
+        onClick={handleFileDisplay}
+        style={{ cursor: 'pointer' }}
+      >
         {file.type?.includes('image') ? (
           <img 
             src={file.previewUrl} 
@@ -219,6 +250,11 @@ const FileCard = ({
             {getFileIcon()}
           </div>
         )}
+        
+        {/* Preview overlay */}
+        <div className={styles.previewOverlay}>
+          <Eye size={20} color="white" />
+        </div>
       </div>
       
       <div className={styles.gridFooter}>
@@ -301,6 +337,9 @@ const FileCard = ({
           )}
         </div>
       </div>
+      {isFileDisplayOpen && (
+          <FileDisplay file={file} onClose={() => setIsFileDisplayOpen(false)} />
+        )}
     </div>
   );
 };

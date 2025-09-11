@@ -10,62 +10,74 @@ import {
   Clipboard,
   Check,
   Frown,
-  Menu
+  Menu,
+  Download
 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { 
   getAvailableGroups, 
   joinGroupWithToken,
-  joinGroup 
+  joinGroup,
+  getUserGroups
 } from '../services/api';
-import GroupCard from '../components/GroupCard';
 
 function Groups() {
-  const [groups, setGroups] = useState([]);
+  const [availableGroups, setAvailableGroups] = useState([]);
+  const [userGroups, setUserGroups] = useState([]);
   const [filteredGroups, setFilteredGroups] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [joinLink, setJoinLink] = useState('');
   const [copied, setCopied] = useState(false);
-  const [loading, setLoading] = useState(true); // Start with loading true
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
   const { toggleSidebar } = useOutletContext();
 
- 
-  // Fetch available groups
+  // Fetch available groups and user's groups
   useEffect(() => {
-    const fetchGroups = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true);
         setError(null);
-        const data = await getAvailableGroups();
-        setGroups(data || []);
-        setFilteredGroups(data || []);
+        
+        // Fetch available groups (groups user hasn't joined)
+        const availableData = await getAvailableGroups();
+        console.log('Available groups:', availableData);
+        
+        // Fetch user's groups (groups user has joined)
+        const userGroupsData = await getUserGroups();
+        console.log('User groups:', userGroupsData);
+        
+        setAvailableGroups(availableData || []);
+        setFilteredGroups(availableData || []);
+        setUserGroups(userGroupsData || []);
+        
       } catch (error) {
-        console.error('Error fetching groups:', error);
+        console.error('Error fetching data:', error);
         setError(error.message || 'Failed to load groups');
         toast.error('Could not load groups at this time');
-        setGroups([]);
+        setAvailableGroups([]);
         setFilteredGroups([]);
+        setUserGroups([]);
       } finally {
         setLoading(false);
       }
     };
-    fetchGroups();
+    fetchData();
   }, []);
 
   // Handle search
   useEffect(() => {
     if (searchQuery) {
-      const results = groups.filter(group => 
+      const results = availableGroups.filter(group => 
         group?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         group?.description?.toLowerCase().includes(searchQuery.toLowerCase())
       );
       setFilteredGroups(results);
     } else {
-      setFilteredGroups(groups);
+      setFilteredGroups(availableGroups);
     }
-  }, [searchQuery, groups]);
+  }, [searchQuery, availableGroups]);
 
   // Join group with code/link
   const handleJoinWithLink = async () => {
@@ -84,10 +96,13 @@ function Groups() {
       toast.success('Successfully joined group!');
       setJoinLink('');
       
-      // Refresh groups list
-      const data = await getAvailableGroups();
-      setGroups(data || []);
-      setFilteredGroups(data || []);
+      // Refresh data
+      const availableData = await getAvailableGroups();
+      const userGroupsData = await getUserGroups();
+      
+      setAvailableGroups(availableData || []);
+      setFilteredGroups(availableData || []);
+      setUserGroups(userGroupsData || []);
     } catch (error) {
       toast.error(error.message || 'Invalid join link');
     } finally {
@@ -102,16 +117,20 @@ function Groups() {
       await joinGroup(groupId);
       toast.success('Successfully joined group!');
       
-      // Refresh groups list
-      const data = await getAvailableGroups();
-      setGroups(data || []);
-      setFilteredGroups(data || []);
+      // Refresh data
+      const availableData = await getAvailableGroups();
+      const userGroupsData = await getUserGroups();
+      
+      setAvailableGroups(availableData || []);
+      setFilteredGroups(availableData || []);
+      setUserGroups(userGroupsData || []);
     } catch (error) {
       toast.error(error.message || 'Failed to join group');
     } finally {
       setLoading(false);
     }
   };
+
   // Copy to clipboard
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
@@ -160,20 +179,88 @@ function Groups() {
     </div>
   );
 
+  // Group card component
+  const GroupCard = ({ group, onJoin, loading, showFiles = false }) => {
+    return (
+      <div className="bg-white rounded-lg shadow-sm p-4 md:p-6 border border-gray-100">
+        <div className="flex flex-col gap-4">
+          <div>
+            <h3 className="text-lg font-semibold text-gray-800">{group.name}</h3>
+            <p className="text-gray-600">{group.description}</p>
+            <div className="flex items-center gap-2 mt-2">
+              <span className={`px-2 py-1 rounded text-xs ${group.isPublic ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}`}>
+                {group.isPublic ? 'Public' : 'Private'}
+              </span>
+              <span className="px-2 py-1 rounded bg-gray-100 text-gray-800 text-xs">
+                {group.members?.length || 0} members
+              </span>
+              <span className="px-2 py-1 rounded bg-gray-100 text-gray-800 text-xs">
+                {group.files?.length || 0} files
+              </span>
+            </div>
+          </div>
+          
+          {onJoin && (
+            <button
+              onClick={onJoin}
+              disabled={loading}
+              className="bg-[var(--color-primary)] text-white px-4 py-2 rounded-lg hover:bg-[var(--color-primary-hover)] disabled:opacity-50"
+            >
+              {loading ? 'Joining...' : 'Join Group'}
+            </button>
+          )}
+          
+          {/* Show files if requested */}
+          {showFiles && group.files && group.files.length > 0 && (
+            <div className="mt-4">
+              <h4 className="font-medium mb-2 flex items-center gap-2">
+                <FileText size={16} /> Files
+              </h4>
+              <div className="space-y-2">
+                {group.files.map(file => (
+                  <div key={file._id} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                    <div>
+                      <div className="font-medium">{file.title || file.filename}</div>
+                      {file.description && (
+                        <div className="text-sm text-gray-600">{file.description}</div>
+                      )}
+                      <div className="text-xs text-gray-500">
+                        Uploaded: {new Date(file.uploadedAt).toLocaleDateString()}
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <a
+                        href={file.url || file.path}
+                        download
+                        className="p-1 text-green-600 hover:bg-green-100 rounded"
+                        title="Download"
+                      >
+                        <Download size={16} />
+                      </a>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="max-w-6xl mx-auto">
       {/* Header */}
       <div className="flex flex-col md:flex-row items-start md:items-center mb-6 gap-7">
-          <button className="text-gray-600" onClick={toggleSidebar}>
-            <Menu size={24} />
-          </button>
+        <button className="text-gray-600" onClick={toggleSidebar}>
+          <Menu size={24} />
+        </button>
         <div>
           <h1 className="text-2xl font-bold text-gray-800">Study Groups</h1>
           <p className="text-gray-600">
             Join groups created by your lecturers or peers to access shared files
           </p>
         </div>
-        
       </div>
 
       {/* Join with link section */}
@@ -225,14 +312,14 @@ function Groups() {
         </div>
       </div>
 
-      {/* Available groups */}
+      {/* Available groups (groups user hasn't joined) */}
       <div className="mb-8">
         <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
           <Users size={20} className="text-[var(--color-primary)]" />
-          Available Groups
+          Available Groups ({availableGroups.length})
         </h2>
 
-        {loading && groups.length === 0 ? (
+        {loading && availableGroups.length === 0 ? (
           <div className="flex justify-center py-10">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[var(--color-primary)]"></div>
           </div>
@@ -262,23 +349,37 @@ function Groups() {
         )}
       </div>
 
-      {/* Your groups section */}
+      {/* Your groups (groups user has joined) */}
       <div>
         <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
           <FileText size={20} className="text-[var(--color-primary)]" />
-          Your Groups
+          Your Groups ({userGroups.length})
         </h2>
-        <div className="bg-gray-50 rounded-lg p-6 text-center">
-          <p className="text-gray-600 mb-4">
-            View and manage your joined groups from the main dashboard
-          </p>
-          <button
-            onClick={() => navigate('/dashboard')}
-            className="bg-[var(--color-primary)] text-white px-4 py-2 rounded-lg hover:bg-[var(--color-primary-hover)] flex items-center gap-2 mx-auto"
-          >
-            Go to Dashboard <ChevronRight size={16} />
-          </button>
-        </div>
+        
+        {userGroups.length === 0 ? (
+          <div className="bg-gray-50 rounded-lg p-6 text-center">
+            <p className="text-gray-600 mb-4">
+              You haven't joined any groups yet. Join groups above to see them here.
+            </p>
+            <button
+              onClick={() => navigate('/dashboard')}
+              className="bg-[var(--color-primary)] text-white px-4 py-2 rounded-lg hover:bg-[var(--color-primary-hover)] flex items-center gap-2 mx-auto"
+            >
+              Go to Dashboard <ChevronRight size={16} />
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {userGroups.map(group => (
+              <GroupCard
+                key={group._id}
+                group={group}
+                showFiles={true}
+                loading={loading}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

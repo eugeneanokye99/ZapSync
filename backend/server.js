@@ -41,7 +41,7 @@ app.use('/public', express.static(path.join(__dirname, 'public')));
 
 // Routes
 app.use('/api/auth', authRoutes);
-// app.use('/api/groups', groupRoutes);
+app.use('/api/groups', groupRoutes);
 app.use('/api/files', fileRoutes);
 app.use('/api/folders', folderRoutes);
 app.use('/api/trash', trashRoutes);

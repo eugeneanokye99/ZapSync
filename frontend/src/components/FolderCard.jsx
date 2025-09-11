@@ -14,7 +14,8 @@ const FolderCard = ({
   users = [],
   isStarred: initialIsStarred = false,
   onStarChange,
-  onMoveToTrash 
+  onMoveToTrash,
+  onClick
 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isShareSubmenuOpen, setIsShareSubmenuOpen] = useState(false);
@@ -91,7 +92,7 @@ const FolderCard = ({
     <div className={styles.folderCard}>
       {/* Folder Header */}
       <div className={styles.folderHeader}>
-        <div className={styles.folderTitleContainer}>
+        <div className={styles.folderTitleContainer} onClick={onClick}>
           <div className={styles.folderIconContainer}>
             <FolderIcon size={20} className={styles.folderIcon} />
           </div>
@@ -109,7 +110,7 @@ const FolderCard = ({
       
       {/* Folder Metadata */}
       <div className={styles.folderMetadata}>
-        <div className={styles.fileInfo}>
+        <div className={styles.fileInfo} onClick={onClick}>
           <span>{filesCount} {filesCount === 1 ? 'file' : 'files'}</span>
           <span>{createdDate}</span>
         </div>

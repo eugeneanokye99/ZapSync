@@ -26,7 +26,11 @@ export default function Login() {
 
 
       // Redirect to dashboard
-      setTimeout(() => navigate("/dashboard"), 2000);
+      if (data.role === 'staff') {
+        setTimeout(() => navigate("/staff_dashboard"), 2000);
+      } else {
+        setTimeout(() => navigate("/dashboard"), 2000);
+      }
     } catch (error) {
       console.error(error)
       toast.error(error.non_field_errors[0]);

@@ -15,7 +15,7 @@ import {
   moveToTrash
 } from "../services/api";
 import { toast } from "react-toastify";
-import { useOutletContext } from "react-router";
+import { useNavigate, useOutletContext } from "react-router";
 import FolderListCard from "../components/FolderListCard";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -79,7 +79,7 @@ const Dashboard = () => {
   const [folders, setFolders] = useState([]);
   const [filteredFiles, setFilteredFiles] = useState([]);
   const [storage, setStorage] = useState({ used: 0, total: 0 });
-
+  const navigate = useNavigate();
 
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [chatMessages, setChatMessages] = useState([
@@ -159,6 +159,10 @@ const Dashboard = () => {
       setFile(file);
       setIsPreviewOpen(true);
     }
+  };
+
+  const handleFolderClick = (folderId) => {
+    navigate(`/folder/${folderId}`); // Navigate to folder page with ID
   };
 
   const handleFileUpload = async () => {
@@ -649,6 +653,7 @@ const Dashboard = () => {
                       isStarred={folder.is_starred}
                       onStarChange={handleFolderStarChange}
                       onMoveToTrash={handleMoveToTrash}
+                      onClick={() => handleFolderClick(folder._id)}
                     />
                   ))}
                 </div>
@@ -671,6 +676,7 @@ const Dashboard = () => {
                         isStarred={folder.is_starred}
                         onStarChange={handleFolderStarChange}
                         onMoveToTrash={handleMoveToTrash}
+                        onClick={() => handleFolderClick(folder._id)}
                       />
                     ))}
                   </div>
@@ -720,6 +726,7 @@ const Dashboard = () => {
                         isStarred={folder.is_starred}
                         onStarChange={handleFolderStarChange}
                         onMoveToTrash={handleMoveToTrash}
+                        onClick={() => handleFolderClick(folder._id)}
                       />
                     ))}
                   </div>
@@ -743,6 +750,7 @@ const Dashboard = () => {
                   isStarred={folder.is_starred}
                   onStarChange={handleFolderStarChange}
                   onMoveToTrash={handleMoveToTrash}
+                  onClick={() => handleFolderClick(folder._id)}
                 />
               ))}
               
